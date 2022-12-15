@@ -352,7 +352,8 @@ namespace squittal.ScrimPlanetmans.ScrimMatch
             stopWatchSetup.Stop();
 
             stopWatchOverlay.Start();
-            
+
+            _logger.LogInformation("Overlay configuration");
             #region Overlay Configuration
 
             if (storeOverlayConfiguration == null)
@@ -445,6 +446,8 @@ namespace squittal.ScrimPlanetmans.ScrimMatch
             #endregion Action rules
 
             stopWatchActionRules.Stop();
+
+            _logger.LogInformation("Action Rules");
 
             stopWatchItemCategoryRules.Start();
 
@@ -650,7 +653,9 @@ namespace squittal.ScrimPlanetmans.ScrimMatch
                 dbContext.Rulesets.Add(storeRuleset);
             }
 
+            _logger.LogInformation("Writing to database ....");
             await dbContext.SaveChangesAsync();
+            _logger.LogInformation("Saved");
 
             stopWatchFinalize.Stop();
 

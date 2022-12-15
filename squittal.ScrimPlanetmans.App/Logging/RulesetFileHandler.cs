@@ -6,6 +6,7 @@ using squittal.ScrimPlanetmans.ScrimMatch.Models;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.Extensions.Configuration;
 
 namespace squittal.ScrimPlanetmans.Logging
 {
@@ -13,10 +14,11 @@ namespace squittal.ScrimPlanetmans.Logging
     {
         public async static Task<bool> WriteToJsonFile(string fileName, JsonRuleset ruleset)
         {
+            var confPath = new ConfigurationBuilder().AddJsonFile("appsettings.json").Build()["AppSettings:RuleSetsDirName"];
             var basePath = AppDomain.CurrentDomain.RelativeSearchPath ?? AppDomain.CurrentDomain.BaseDirectory;
-            var rulesetsDirectory = Path.GetFullPath(Path.Combine(basePath, "..", "..", "..", "..\\rulesets"));
+            var rulesetsDirectory = confPath ?? Path.GetFullPath(Path.Combine(basePath, "..", "..", "..", "..","rulesets"));
 
-            var path = fileName.EndsWith(".json") ? $"{rulesetsDirectory}\\{fileName}" : $"{rulesetsDirectory}\\{fileName}.json";
+            var path = fileName.EndsWith(".json") ? Path.Combine(rulesetsDirectory,fileName) : Path.Combine(rulesetsDirectory,$"{fileName}.json");
 
             try
             {
@@ -40,10 +42,10 @@ namespace squittal.ScrimPlanetmans.Logging
 
         public async static Task<JsonRuleset> ReadFromJsonFile(string fileName)
         {
+            var confPath = new ConfigurationBuilder().AddJsonFile("appsettings.json").Build()["AppSettings:RuleSetsDirName"];
             var basePath = AppDomain.CurrentDomain.RelativeSearchPath ?? AppDomain.CurrentDomain.BaseDirectory;
-            var rulesetsDirectory = Path.GetFullPath(Path.Combine(basePath, "..", "..", "..", "..\\rulesets"));
-
-            var path = fileName.EndsWith(".json") ? $"{rulesetsDirectory}\\{fileName}" : $"{rulesetsDirectory}\\{fileName}.json";
+            var rulesetsDirectory = confPath ?? Path.GetFullPath(Path.Combine(basePath, "..", "..", "..","..", "rulesets"));
+            var path = fileName.EndsWith(".json") ? Path.Combine(rulesetsDirectory, fileName) : Path.Combine(rulesetsDirectory, $"{fileName}.json");
 
             try
             {
@@ -64,9 +66,10 @@ namespace squittal.ScrimPlanetmans.Logging
 
         public static IEnumerable<string> GetJsonRulesetFileNames()
         {
+            var confPath = new ConfigurationBuilder().AddJsonFile("appsettings.json").Build()["AppSettings:RuleSetsDirName"];
             var basePath = AppDomain.CurrentDomain.RelativeSearchPath ?? AppDomain.CurrentDomain.BaseDirectory;
-            var rulesetsDirectory = Path.GetFullPath(Path.Combine(basePath, "..", "..", "..", "..\\rulesets"));
-
+            var rulesetsDirectory = confPath ?? Path.GetFullPath(Path.Combine(basePath, "..", "..", "..", "..", "rulesets"));
+     
             var rulesets = new List<string>();
 
             try

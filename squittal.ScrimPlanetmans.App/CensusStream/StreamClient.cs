@@ -1,5 +1,6 @@
 ﻿// Credit to Lampjaw @ Voidwell.DaybreakGames
 using DaybreakGames.Census.Stream;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
@@ -16,7 +17,6 @@ namespace squittal.ScrimPlanetmans.CensusStream
         private const string CensusWebsocketEndpoint = "wss://push.planetside2.com/streaming";
         private const string CensusServiceNamespace = "ps2";
 
-        private readonly string CensusServiceKey;
 
         private static readonly Func<ClientWebSocket> wsFactory = new Func<ClientWebSocket>(() =>
         {
@@ -36,7 +36,7 @@ namespace squittal.ScrimPlanetmans.CensusStream
         {
             _logger = logger;
 
-            CensusServiceKey = Environment.GetEnvironmentVariable("DaybreakGamesServiceKey", EnvironmentVariableTarget.User);
+        
         }
 
         private Func<string, Task> _onMessage;
@@ -112,7 +112,9 @@ namespace squittal.ScrimPlanetmans.CensusStream
 
         private Uri GetEndpoint()
         {
-            return new Uri($"{CensusWebsocketEndpoint}?environment={CensusServiceNamespace}&service-id=s:{CensusServiceKey}");
+
+            var serviceKey = new ConfigurationBuilder().AddJsonFile("appsettings.json").Build()["AppSettings:DaybreakGamesServiceKey"] ?? Environment.GetEnvironmentVariable("DaybreakGamesServiceKey", EnvironmentVariableTarget.User);
+            return new Uri($"{CensusWebsocketEndpoint}?environment={CensusServiceNamespace}&service-id=s:{serviceKey}");
         }
 
         public void Dispose()

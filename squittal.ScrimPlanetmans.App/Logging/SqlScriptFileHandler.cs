@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using System.IO;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.Extensions.Configuration;
 
 namespace squittal.ScrimPlanetmans.Logging
 {
@@ -10,8 +11,9 @@ namespace squittal.ScrimPlanetmans.Logging
     {
         public static IEnumerable<string> GetAdHocSqlFileNames()
         {
+            var confPath = new ConfigurationBuilder().AddJsonFile("appsettings.json").Build()["AppSettings:AdhocScriptDir"];
             var basePath = AppDomain.CurrentDomain.RelativeSearchPath ?? AppDomain.CurrentDomain.BaseDirectory;
-            var adhocScriptDirectory = Path.GetFullPath(Path.Combine(basePath, "..", "..", "..", "..\\sql_adhoc"));
+            var adhocScriptDirectory = Path.GetFullPath(confPath ?? Path.Combine(basePath, "..", "..", "..", "..","sql_adhoc"));
 
             var scripts = new List<string>();
 

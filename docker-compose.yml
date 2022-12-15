@@ -1,0 +1,33 @@
+version: '3'
+
+services:
+  planetmans-app:
+    user: root
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        buildno: 1
+    depends_on:
+      - planetmans-db
+    ports:
+      - '5000:5000'
+      - '5001:5001'
+    volumes:
+      - ./DockerData/sql_adhoc:/app/sql_adhoc
+      - ./DockerData/match_logs:/app/match_logs
+      - ./DockerData/rulesets:/app/rulesets
+
+  planetmans-db:
+    user: root
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    # volumes:
+    #  - ./DockerData/Database:/var/opt/mssql/data
+    environment:
+      ACCEPT_EULA: 'Y'
+      MSSQL_SA_PASSWORD: "test"
+    healthcheck:
+      test: ["CMD", "/opt/mssql-tools/bin/sqlcmd", "-USA", "-Ptest", "-Q", "select 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5

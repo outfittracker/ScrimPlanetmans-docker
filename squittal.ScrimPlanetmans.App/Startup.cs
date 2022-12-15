@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Hosting;
 using squittal.ScrimPlanetmans.CensusServices;
 using squittal.ScrimPlanetmans.CensusStream;
@@ -47,8 +48,9 @@ namespace squittal.ScrimPlanetmans.App
                         .EnableSensitiveDataLogging(false));
 
 
+            var serviceKey = new ConfigurationBuilder().AddJsonFile("appsettings.json").Build()["AppSettings:DaybreakGamesServiceKey"] ?? Environment.GetEnvironmentVariable("DaybreakGamesServiceKey", EnvironmentVariableTarget.User);
             services.AddCensusServices(options =>
-                options.CensusServiceId = Environment.GetEnvironmentVariable("DaybreakGamesServiceKey", EnvironmentVariableTarget.User));
+                options.CensusServiceId = serviceKey);
             services.AddCensusHelpers();
 
             services.AddSingleton<IDbContextHelper, DbContextHelper>();
@@ -122,8 +124,23 @@ namespace squittal.ScrimPlanetmans.App
                 app.UseHsts();
             }
 
-            app.UseHttpsRedirection();
+           
             app.UseStaticFiles();
+
+            //@see https://github.com/dotnet/aspnetcore/issues/19578
+            var wwwRoot = new ConfigurationBuilder().AddJsonFile("appsettings.json").Build()["AppSettings:WWWRoot"];
+            if(wwwRoot != null)
+            {
+                app.UseStaticFiles(new StaticFileOptions
+                {
+                    FileProvider = new PhysicalFileProvider(wwwRoot)
+                });
+            }
+            else
+            {
+                app.UseHttpsRedirection();
+            }
+
 
             app.UseRouting();
 
